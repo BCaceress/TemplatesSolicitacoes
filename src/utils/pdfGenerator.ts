@@ -122,26 +122,27 @@ export const generateSolicitationPDF = async (
         </div>
       </div>
       
-      <!-- Document title -->
-      <div style="margin-bottom: 10px; text-align: center; padding: 10px; background-color: #f5f7fa; border-radius: 6px; border-left: 4px solid ${accentColor};">
-        <h1 style="margin: 0; font-size: 18px; color: #2c3e50; font-weight: 600;">${formData.title}</h1>
+      <!-- Document title - Updated with vertical alignment -->
+      <div style="margin-bottom: 6px; text-align: center; padding: 8px; background-color: #f5f7fa; border-radius: 6px; border-left: 4px solid ${accentColor}; display: flex; align-items: center; justify-content: center; min-height: 42px;">
+        <h1 style="margin: 0; font-size: 16px; color: #2c3e50; font-weight: 600;">${formData.title}</h1>
       </div>
       
-      <!-- Report Summary - Two column layout -->
-      <div style="display: flex; margin-bottom: 15px; gap: 20px;">
+      <!-- Report Summary - Two column layout with reduced vertical spacing -->
+      <div style="display: flex; margin-bottom: 8px; gap: 12px;">
         <!-- Left column: Request information -->
-        <div style="flex: 3; background-color: #f9fafc; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border: 1px solid #eaecef;">
-          <h2 style="margin: 0 0 12px 0; font-size: 16px; color: #444; border-bottom: 2px solid ${accentColor}; padding-bottom: 8px;">Informações do Chamado</h2>
+        <div style="flex: 3; background-color: #f9fafc; padding: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border: 1px solid #eaecef;">
+          <h2 style="margin: 0 0 8px 0; font-size: 16px; color: #444; border-bottom: 2px solid ${accentColor}; padding-bottom: 6px;">Informações do Chamado</h2>
           
-          <div style="display: grid; grid-template-columns: 95px 1fr; row-gap: 12px; font-size: 14px; align-items: center;">
-            <div style="font-weight: 600; color: #555;">Atendente:</div>
-            <div>${userName} <span style="color: #666; font-size: 11px;">(${userRole})</span></div>
-            
+          <div style="display: grid; grid-template-columns: 95px 1fr; row-gap: 8px; font-size: 14px; align-items: center;">
+           
             <div style="font-weight: 600; color: #555;">Data:</div>
             <div>${formattedIncidentDate}</div>
             
             <div style="font-weight: 600; color: #555;">Cliente:</div>
             <div>${formData.affectedEstablishment || 'Não especificado'}</div>
+
+            <div style="font-weight: 600; color: #555;">Atendente:</div>
+            <div>${userName} <span style="color: #666; font-size: 11px;">(${userRole})</span></div>
             
             <div style="font-weight: 600; color: #555;">Afeta outros:</div>
             <div>${affectsOthersText}</div>
@@ -149,11 +150,11 @@ export const generateSolicitationPDF = async (
         </div>
         
         <!-- Right column: GUT Matrix (Technical Version) -->
-        <div style="flex: 1; background: linear-gradient(135deg, ${scoreColor} 0%, ${scoreColor}CC 100%); color: #fff; border-radius: 8px; padding: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
-          <div style="font-size: 12px; font-weight: 500; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px;">MATRIZ GUT</div>
-          <div style="font-size: 36px; font-weight: 700; margin-bottom: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">${criticalityScore}</div>
-          <div style="font-size: 14px; margin-bottom: 10px; font-weight: 600; letter-spacing: 0.5px;">${scoreLabel}</div>
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); color: #fff; gap: 8px; font-size: 12px;  padding: 6px 12px; border-radius: 4px; width: 80%;">
+        <div style="flex: 1; background: linear-gradient(135deg, ${scoreColor} 0%, ${scoreColor}CC 100%); color: #fff; border-radius: 8px; padding: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.15);">
+          <div style="font-size: 12px; font-weight: 500; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 1px;">MATRIZ GUT</div>
+          <div style="font-size: 32px; font-weight: 700; margin-bottom: 3px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);">${criticalityScore}</div>
+          <div style="font-size: 14px; margin-bottom: 6px; font-weight: 600; letter-spacing: 0.5px;">${scoreLabel}</div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); color: #fff; gap: 6px; font-size: 12px; padding: 4px 8px; border-radius: 4px; width: 80%;">
             <div style="display: flex; flex-direction: column; align-items: center;">
               <span style="font-weight: 600;">G</span>
               <span>${formData.impact}</span>
@@ -172,7 +173,7 @@ export const generateSolicitationPDF = async (
       
       <!-- Description section - Updated for better text handling -->
       <div style="margin-bottom: 12px; background-color: #fff; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #eaecef;">
-        <h3 style="font-size: 14px; font-weight: 600; color: #fff; background-color: #3A3A3A; padding: 8px 15px; margin: 0; display: flex; align-items: center;">
+        <h3 style="font-size: 13px; font-weight: 600; color: #fff; background-color: #3A3A3A; padding: 8px 15px; margin: 0; display: flex; align-items: center;">
           <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
           </svg>
@@ -185,7 +186,7 @@ export const generateSolicitationPDF = async (
       
       <!-- Technical Information -->
       <div style="margin-bottom: 12px; background-color: #fff; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #eaecef;">
-        <h3 style="font-size: 14px; font-weight: 600; color: #fff; background-color: #3A3A3A; padding: 8px 15px; margin: 0; display: flex; align-items: center;">
+        <h3 style="font-size: 13px; font-weight: 600; color: #fff; background-color: #3A3A3A; padding: 8px 15px; margin: 0; display: flex; align-items: center;">
           <svg style="width: 16px; height: 16px; margin-right: 6px;" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" d="M5 2a1 1 0 011-1h8a1 1 0 011 1v10a1 1 0 01-1 1H6a1 1 0 01-1-1V2zm2 1h6v8H7V3zm-3 9v6h10v-6H4zm2 2h6v2H6v-2z" clip-rule="evenodd"></path>
           </svg>
@@ -197,40 +198,40 @@ export const generateSolicitationPDF = async (
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 10px; background-color: #f9fafc;">
           
            <div style="background-color: white; padding: 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #eaecef;">
-            <div style="font-size: 13px; font-weight: 600; color: #555; margin-bottom: 6px; display: flex; align-items: center; line-height: 1;">
+            <div style="font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; display: flex; align-items: center; line-height: 1;">
               <svg style="width: 14px; height: 14px; margin-right: 5px; flex-shrink: 0;" fill="#666" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm11 1H6v8l4-2 4 2V6z" clip-rule="evenodd"></path>
               </svg>
               Módulo ERP</div>
-            <div style="font-size: 14px;">${formData.erpModule || 'Não especificado'}</div>
+            <div style="font-size: 13px;">${formData.erpModule || 'Não especificado'}</div>
           </div>
         <div style="background-color: white; padding: 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #eaecef;">
-            <div style="font-size: 13px; font-weight: 600; color: #555; margin-bottom: 6px; display: flex; align-items: center; line-height: 1;">
+            <div style="font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; display: flex; align-items: center; line-height: 1;">
               <svg style="width: 14px; height: 14px; margin-right: 5px; flex-shrink: 0;" fill="#666" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path d="M13 7H7v6h6V7z"></path><path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"></path>
               </svg>
               Versão</div>
-            <div style="font-size: 14px;">${formData.moduleVersion || 'Não especificada'}</div>
+            <div style="font-size: 13px;">${formData.moduleVersion || 'Não especificada'}</div>
           </div>
           
        
           
           <div style="background-color: white; padding: 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #eaecef;">
-            <div style="font-size: 13px; font-weight: 600; color: #555; margin-bottom: 6px; display: flex; align-items: center; line-height: 1;">
+            <div style="font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; display: flex; align-items: center; line-height: 1;">
               <svg style="width: 14px; height: 14px; margin-right: 5px; flex-shrink: 0;" fill="#666" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
               </svg>
               Código/Programa</div>
-            <div style="font-size: 14px;">${formData.programCodes || 'Não especificado'}</div>
+            <div style="font-size: 13px;">${formData.programCodes || 'Não especificado'}</div>
           </div>
           
           <div style="background-color: white; padding: 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #eaecef;">
-            <div style="font-size: 13px; font-weight: 600; color: #555; margin-bottom: 6px; display: flex; align-items: center; line-height: 1;">
+            <div style="font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; display: flex; align-items: center; line-height: 1;">
               <svg style="width: 14px; height: 14px; margin-right: 5px; flex-shrink: 0;" fill="#666" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
               </svg>
               Sistema Operacional</div>
-            <div style="font-size: 14px;">${formData.operatingSystem || 'Não especificado'}</div>
+            <div style="font-size: 13px;">${formData.operatingSystem || 'Não especificado'}</div>
           </div>
         </div>
       </div>
