@@ -27,15 +27,17 @@ export default function SolicitationTypePage() {
                 // Replace this with your actual API call
                 // For now, using some simple mapping
                 const supportTeam = [
-                    { name: "Cristiane", id: "cristiane", role: "Equipe de Suporte" },
-                    { name: "Bruno", id: "bruno", role: "Equipe de Suporte" },
-                    { name: "Diego", id: "diego", role: "Equipe de Suporte" },
-                    { name: "Thiago", id: "thiago", role: "Equipe de Suporte" },
+                    { name: "Bruno Fernandes", id: "bruno", role: "Suporte" },
+                    { name: "Cristiane Lichmann", id: "cristiane", role: "Suporte" },
+                    { name: "Diego Cordeiro", id: "diegoC", role: "Suporte" },
+                    { name: "Diego Felipe", id: "diegoF", role: "Suporte" },
+                    { name: "Marcel Jaques", id: "marcel", role: "Suporte" },
+                    { name: "Thiago Simon", id: "thiago", role: "Suporte" },
                 ];
 
                 const analystTeam = [
-                    { name: "Matheus", id: "matheus", role: "Equipe de Análise" },
-                    { name: "Cristiano", id: "cristiano", role: "Equipe de Análise" },
+                    { name: "Cristiano Huhnfleisch", id: "cristiano", role: "Implantação" },
+                    { name: "Matheus Pochmann", id: "matheus", role: "Implantação" },
                 ];
 
                 const allUsers = [...supportTeam, ...analystTeam];

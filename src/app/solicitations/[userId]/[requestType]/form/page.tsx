@@ -11,7 +11,7 @@ import Tooltip from "@mui/material/Tooltip";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import PropTypes from "prop-types";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 // Utility function to render severity level icons with appropriate colors
 const SeverityIcon = ({ level, text }) => {
@@ -70,6 +70,7 @@ export default function SolicitationFormPage() {
     const { selectedUser } = useUser();
 
     const [formData, setFormData] = useState(initialFormState);
+    const inputRefs = useRef({});
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState({});
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -135,13 +136,43 @@ export default function SolicitationFormPage() {
         fetchUserName();
     }, [userId, selectedUser]);
 
-    // Input handlers - memoized to prevent recreation on each render
+    // Modified input handler that preserves focus
     const handleInputChange = useCallback((e) => {
         const { name, value } = e.target;
+        const activeElementName = document.activeElement.name;
+
         setFormData(prevData => ({
             ...prevData,
             [name]: value
         }));
+
+        // Restore focus after state update
+        setTimeout(() => {
+            if (activeElementName && inputRefs.current[activeElementName]) {
+                inputRefs.current[activeElementName].focus();
+            }
+        }, 0);
+    }, []);
+
+    // Add a specific handler for textarea to avoid the reverse typing issue
+    const handleTextareaChange = useCallback((e) => {
+        const { name, value } = e.target;
+        const element = e.target;
+        const selectionStart = element.selectionStart;
+
+        setFormData(prevData => ({
+            ...prevData,
+            [name]: value
+        }));
+
+        // Properly restore cursor position for textarea
+        requestAnimationFrame(() => {
+            if (inputRefs.current[name]) {
+                inputRefs.current[name].focus();
+                inputRefs.current[name].selectionStart = selectionStart;
+                inputRefs.current[name].selectionEnd = selectionStart;
+            }
+        });
     }, []);
 
     const handleFileChange = useCallback((e) => {
@@ -313,6 +344,7 @@ export default function SolicitationFormPage() {
                     value={formData[id]}
                     onChange={handleInputChange}
                     placeholder={placeholder}
+                    ref={el => inputRefs.current[id] = el}
                     className={`w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 ${errors[id] ? "border-red-500" : "border-gray-300"}`}
                     aria-invalid={errors[id] ? "true" : "false"}
                     aria-describedby={errors[id] ? `${id}-error` : undefined}
@@ -434,9 +466,10 @@ export default function SolicitationFormPage() {
                                             id="details"
                                             name="details"
                                             value={formData.details}
-                                            onChange={handleInputChange}
+                                            onChange={handleTextareaChange}
                                             rows={5}
                                             placeholder="Descreva detalhadamente o incidente"
+                                            ref={el => inputRefs.current.details = el}
                                             className={`w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 ${errors.details ? "border-red-500" : "border-gray-300"}`}
                                             aria-invalid={errors.details ? "true" : "false"}
                                             aria-describedby={errors.details ? "details-error" : undefined}
@@ -662,7 +695,21 @@ export default function SolicitationFormPage() {
                                             aria-describedby={errors.erpModule ? "erpModule-error" : undefined}
                                         >
                                             <option value="">Selecione o módulo</option>
-                                            <option value="CLT400">CLT400</option>
+                                            <option value="Módulo Alertas">Módulo Alertas</option>
+                                            <option value="Módulo Cadastro de usuários e permissões">Módulo Cadastro de usuários e permissões</option>
+                                            <option value="Módulo Comercial">Módulo Comercial</option>
+                                            <option value="Módulo Compras">Módulo Compras</option>
+                                            <option value="Módulo Contábil">Módulo Contábil</option>
+                                            <option value="Módulo Curtume">Módulo Curtume</option>
+                                            <option value="Módulo Engenharia">Módulo Engenharia</option>
+                                            <option value="Módulo Estoque">Módulo Estoque</option>
+                                            <option value="Módulo Financeiro">Módulo Financeiro</option>
+                                            <option value="Módulo Fiscal">Módulo Fiscal</option>
+                                            <option value="Módulo Nota Fiscal de Saída">Módulo Nota Fiscal de Saída</option>
+                                            <option value="Módulo Produção">Módulo Produção</option>
+                                            <option value="Módulo Programas Exclusivos">Módulo Programas Exclusivos</option>
+                                            <option value="Módulo Recebimento">Módulo Recebimento</option>
+                                            <option value="Módulo Tratamento Térmico">Módulo Tratamento Térmico</option>
                                         </select>
                                     </FormField>
 

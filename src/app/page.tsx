@@ -7,17 +7,17 @@ export default function Home() {
   const { setSelectedUser } = useUser();
 
   const supportTeam = [
-    { name: "Bruno Fernandes", id: "bruno", role: "Equipe de Suporte" },
-    { name: "Cristiane Lichmann", id: "cristiane", role: "Equipe de Suporte" },
-    { name: "Diego Cordeiro", id: "diegoC", role: "Equipe de Suporte" },
-    { name: "Diego Felipe", id: "diegoF", role: "Equipe de Suporte" },
-    { name: "Marcel Jaques", id: "marcel", role: "Equipe de Suporte" },
-    { name: "Thiago Simon", id: "thiago", role: "Equipe de Suporte" },
+    { name: "Bruno Fernandes", id: "bruno", role: "Suporte" },
+    { name: "Cristiane Lichmann", id: "cristiane", role: "Suporte" },
+    { name: "Diego Cordeiro", id: "diegoC", role: "Suporte" },
+    { name: "Diego Felipe", id: "diegoF", role: "Suporte" },
+    { name: "Marcel Jaques", id: "marcel", role: "Suporte" },
+    { name: "Thiago Simon", id: "thiago", role: "Suporte" },
   ];
 
   const analystTeam = [
-    { name: "Cristiano Huhnfleisch", id: "cristiano", role: "Equipe de Implantação" },
-    { name: "Matheus Pochmann", id: "matheus", role: "Equipe de Implantação" },
+    { name: "Cristiano Huhnfleisch", id: "cristiano", role: "Implantação" },
+    { name: "Matheus Pochmann", id: "matheus", role: "Implantação" },
   ];
 
   const handleUserSelect = (user) => {
