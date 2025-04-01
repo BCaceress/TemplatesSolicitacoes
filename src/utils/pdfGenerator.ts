@@ -15,6 +15,7 @@ interface FormData {
   moduleVersion: string;
   programCodes: string;
   affectedEstablishment: string;
+  selectedDatabase: string; // New field for database
   operatingSystem: string;
 }
 
@@ -193,11 +194,8 @@ export const generateSolicitationPDF = async (
           INFORMAÇÕES TÉCNICAS
         </h3>
 
-        
-        
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 10px; background-color: #f9fafc;">
-          
-           <div style="background-color: white; padding: 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #eaecef;">
+          <div style="background-color: white; padding: 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #eaecef;">
             <div style="font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; display: flex; align-items: center; line-height: 1;">
               <svg style="width: 14px; height: 14px; margin-right: 5px; flex-shrink: 0;" fill="#666" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd" d="M3 5a2 2 0 012-2h10a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V5zm11 1H6v8l4-2 4 2V6z" clip-rule="evenodd"></path>
@@ -205,7 +203,10 @@ export const generateSolicitationPDF = async (
               Módulo ERP</div>
             <div style="font-size: 13px;">${formData.erpModule || 'Não especificado'}</div>
           </div>
-        <div style="background-color: white; padding: 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #eaecef;">
+
+    
+          
+          <div style="background-color: white; padding: 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #eaecef;">
             <div style="font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; display: flex; align-items: center; line-height: 1;">
               <svg style="width: 14px; height: 14px; margin-right: 5px; flex-shrink: 0;" fill="#666" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path d="M13 7H7v6h6V7z"></path><path fill-rule="evenodd" d="M7 2a1 1 0 012 0v1h2V2a1 1 0 112 0v1h2a2 2 0 012 2v2h1a1 1 0 110 2h-1v2h1a1 1 0 110 2h-1v2a2 2 0 01-2 2h-2v1a1 1 0 11-2 0v-1H9v1a1 1 0 11-2 0v-1H5a2 2 0 01-2-2v-2H2a1 1 0 110-2h1V9H2a1 1 0 010-2h1V5a2 2 0 012-2h2V2zM5 5h10v10H5V5z" clip-rule="evenodd"></path>
@@ -213,8 +214,6 @@ export const generateSolicitationPDF = async (
               Versão</div>
             <div style="font-size: 13px;">${formData.moduleVersion || 'Não especificada'}</div>
           </div>
-          
-       
           
           <div style="background-color: white; padding: 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #eaecef;">
             <div style="font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; display: flex; align-items: center; line-height: 1;">
@@ -225,13 +224,22 @@ export const generateSolicitationPDF = async (
             <div style="font-size: 13px;">${formData.programCodes || 'Não especificado'}</div>
           </div>
           
-          <div style="background-color: white; padding: 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #eaecef;">
+          <div style="background-color: white; padding: 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #eaecef; ">
             <div style="font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; display: flex; align-items: center; line-height: 1;">
               <svg style="width: 14px; height: 14px; margin-right: 5px; flex-shrink: 0;" fill="#666" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                 <path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path>
               </svg>
               Sistema Operacional</div>
             <div style="font-size: 13px;">${formData.operatingSystem || 'Não especificado'}</div>
+          </div>
+
+          <div style="background-color: white; padding: 10px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #eaecef; grid-column: span 2;">
+            <div style="font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; display: flex; align-items: center; line-height: 1;">
+              <svg style="width: 14px; height: 14px; margin-right: 5px; flex-shrink: 0;" fill="#666" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" d="M5 4a3 3 0 00-3 3v6a3 3 0 003 3h10a3 3 0 003-3V7a3 3 0 00-3-3H5zm-1 9v-1h5v2H5a1 1 0 01-1-1zm7 1h4a1 1 0 001-1v-1h-5v2zm0-4h5V8h-5v2zM9 8H4v2h5V8z" clip-rule="evenodd"></path>
+              </svg>
+              Banco de Dados</div>
+            <div style="font-size: 13px;">${formData.selectedDatabase || 'Não especificado'}</div>
           </div>
         </div>
       </div>
