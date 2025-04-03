@@ -8,6 +8,14 @@ export default function SolicitationTypeBridgePage() {
     const router = useRouter();
 
     useEffect(() => {
+        // Check if the request type is valid
+        const validRequestTypes = ['bugs', 'improvements'];
+        if (!validRequestTypes.includes(requestType)) {
+            // If not valid, redirect to the user's solicitation page
+            router.push(`/solicitations/${userId}`);
+            return;
+        }
+
         // Redirect to the form page
         router.push(`/solicitations/${userId}/${requestType}/form`);
     }, [userId, requestType, router]);

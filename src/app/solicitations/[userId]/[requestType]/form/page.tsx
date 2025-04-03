@@ -1,6 +1,8 @@
 "use client";
 
+import { severityTooltip, tendencyTooltip, urgencyTooltip } from "@/components/SeverityTooltips";
 import { useUser } from "@/contexts/UserContext";
+import { clientDatabases } from "@/utils/clientDatabases";
 import { generateSolicitationPDF } from "@/utils/pdfGenerator";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 import BugReportOutlinedIcon from "@mui/icons-material/BugReportOutlined";
@@ -12,36 +14,6 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import PropTypes from "prop-types";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-
-// Utility function to render severity level icons with appropriate colors
-const SeverityIcon = ({ level, text }) => {
-    const color = useMemo(() => {
-        switch (level) {
-            case 1: return "#3498db"; // Very Low - Light Blue
-            case 2: return "#2ecc71"; // Low - Green
-            case 3: return "#f1c40f"; // Medium - Yellow
-            case 4: return "#e67e22"; // High - Orange
-            case 5: return "#e74c3c"; // Critical - Red
-            default: return "#95a5a6"; // Default gray
-        }
-    }, [level]);
-
-    return (
-        <div className="flex items-center mb-1">
-            <span
-                className="inline-block w-3 h-3 rounded-full mr-2"
-                style={{ backgroundColor: color }}
-                aria-hidden="true"
-            />
-            <span>{text}</span>
-        </div>
-    );
-};
-
-SeverityIcon.propTypes = {
-    level: PropTypes.number.isRequired,
-    text: PropTypes.string.isRequired
-};
 
 // Initial form state to avoid repetition
 const initialFormState = {
@@ -60,100 +32,12 @@ const initialFormState = {
     programCodes: "",
     affectedEstablishment: "",
     selectedDatabase: "",
-    operatingSystem: "Windows 11"
-};
-
-// Client to database mapping
-const clientDatabases = {
-    "Agro Santos e Ernesto -PE- (97)": [
-        "10.0.0.252:/dados/BDClientes/BDdivina.fdb",
-        "10.0.0.252:/dados/BDClientes/BDanaluisa.fdb",
-        "10.0.0.252:/dados/BDClientes/BDsantos.fdb",
-        "10.0.0.252:/dados/BDClientes/BDernesto.fdb"
-    ],
-    "Base HS/Blass/Filial (50)": [
-        "10.0.0.252:/dados/BDClientes/BDbase.fdb",
-        "10.0.0.252:/dados/BDClientes/BDblass.fdb"
-    ],
-    "Berlinerluft (83)": ["10.0.0.252:/dados/BDClientes/BDberlinerluft.fdb"],
-    "Biometal (176)": ["10.0.0.252:/dados/BDClientes/BDbiometal.fdb"],
-    "Blue/WJM/Juck (164)": [
-        "10.0.0.252:/dados/BDClientes/BDblue.fdb",
-        "10.0.0.252:/dados/BDClientes/BDwjm.fdb",
-        "10.0.0.252:/dados/BDClientes/BDjuck.fdb"
-    ],
-    "Blueplast (96)": ["10.0.0.252:/dados/BDClientes/BDblueplast.fdb"],
-    "Bombas Beto (139)": ["10.0.0.252:/dados/BDClientes/BDbombasbeto.fdb"],
-    "Brutt (111)": ["10.0.0.252:/dados/BDClientes/BDbrutt.fdb"],
-    "Colet (Duo) (15)": ["10.0.0.252:/dados/BDColet/BDcolet.fdb"],
-    "Couros do Vale (179)": ["10.0.0.252:/dados/BDClientes/BDcourosdovale.fdb"],
-    "Crespi (66)": ["10.0.0.252:/dados/BDClientes/BDcrespi.fdb"],
-    "Dalpiaz (148)": ["10.0.0.252:/dados/BDClientes/BDdalpiaz.fdb"],
-    "Dover (28)": [
-        "10.0.0.252:/dados/BDClientes/BDwds.fdb",
-        "10.0.0.252:/dados/BDClientes/BDdover.fdb"
-    ],
-    "Dzainer (55)": ["10.0.0.252:/dados/BDClientes/BDdzainer.fdb"],
-    "EKT Industrial (175)": ["10.0.0.252:/dados/BDClientes/BDektindustrial.fdb"],
-    "Fable | F&R (165)": [
-        "10.0.0.252:/dados/BDClientes/BDfable.fdb",
-        "10.0.0.252:/dados/BDClientes/BDfer.fdb"
-    ],
-    "Fernanda (125)": ["10.0.0.252:/dados/BDClientes/BDfernanda.fdb"],
-    "Feroli (159)": ["10.0.0.252:/dados/BDClientes/BDferoli.fdb"],
-    "Golden Chemie (155)": ["10.0.0.252:/dados/BDClientes/BDgolden.fdb"],
-    "Guarutemper (173)": ["10.0.0.252:/dados/BDClientes/BDguarutemper.fdb"],
-    "Imac (51)": [
-        "10.0.0.252:/dados/BDClientes/BDimac.fdb",
-        "10.0.0.252:/dados/BDColet/BDimacsequenciamento.fdb"
-    ],
-    "Imex (156)": ["10.0.0.252:/dados/BDClientes/BDimex.fdb"],
-    "Indutherm (150)": ["10.0.0.252:/dados/BDClientes/BDindutherm.fdb"],
-    "JA Industrial (174)": ["10.0.0.252:/dados/BDClientes/BDinterpint.fdb", "10.0.0.252:/dados/BDClientes/BDinter-revest.fdb"],
-    "Jet Sola (186)": ["10.0.0.252:/dados/BDClientes/BDjetsola.fdb"],
-    "LLV (34)": ["10.0.0.252:/dados/BDClientes/BDllv.fdb"],
-    "Mach Tooling (191)": ["10.0.0.252:/dados/BDClientes/BDmachtooling.fdb"],
-    "Metal Moto (115)": ["10.0.0.252:/dados/BDClientes/BDmetalmoto.fdb"],
-    "Metal Paulista (135)": ["10.0.0.252:/dados/BDClientes/BDmetalpaulista.fdb"],
-    "Metal Sul (137)": ["10.0.0.252:/dados/BDClientes/BDmetalsul.fdb"],
-    "Metal Técnica (2)": ["10.0.0.252:/dados/BDClientes/BDmetaltecnica.fdb", "10.0.0.252:/dados/BDClientes/BDmetaltrat.fdb"],
-    "MK Sinter (123)": ["10.0.0.252:/dados/BDClientes/BDmksinter.fdb"],
-    "Natur (7)": ["10.0.0.252:/dados/BDClientes/BDnatur.fdb"],
-    "Niit Plasma (147)": ["10.0.0.252:/dados/BDClientes/BDttiplasma.fdb"],
-    "Nobre (119)": ["10.0.0.252:/dados/BDClientes/BDnobre.fdb"],
-    "Nobre Contabilidade Outras (121)": ["10.0.0.252:/dados/BDClientes/BDadeconto.fdb"],
-    "Palagi (172)": ["10.0.0.252:/dados/BDClientes/BDpalagi.fdb"],
-    "Paschoal & RT Metais (127)": ["10.0.0.252:/dados/BDClientes/BDpaschoal.fdb"],
-    "Padrão Componentes (183)": ["10.0.0.252:/dados/BDColet/BDcomponentes.fdb"],
-    "Padrão Curtume (94)": ["10.0.0.252:/dados/BDColet/BDcurtume.fdb"],
-    "Padrão Manufatura (59)": ["10.0.0.252:/dados/BDColet/BDmanufatura.fdb"],
-    "Padrão Tratamento Térmico (136)": ["10.0.0.252:/dados/BDColet/BDtratamentotermico.fdb"],
-    "Pitía Bilhar (170)": ["10.0.0.252:/dados/BDClientes/BDpitia.fdb"],
-    "Plasma (117)": ["10.0.0.252:/dados/BDClientes/BDplasma.fdb"],
-    "Projelmec (74)": ["10.0.0.252:/dados/BDClientes/BDprojelmec.fdb"],
-    "Reuter (65)": ["10.0.0.252:/dados/BDClientes/BDreuter.fdb", "10.0.0.252:/dados/BDClientes/BDmaristela.fdb"],
-    "Rototech (90)": ["10.0.0.252:/dados/BDClientes/BDrototech.fdb"],
-    "Salini MT (184)": ["10.0.0.252:/dados/BDClientes/BDsalinimt.fdb"],
-    "SFTech (171)": ["10.0.0.252:/dados/BDClientes/BDsftech.fdb"],
-    "Sinttec (153)": ["10.0.0.252:/dados/BDClientes/BDsinttec.fdb"],
-    "Spier (189)": ["10.0.0.252:/dados/BDClientes/BDspier.fdb"],
-    "SS Usinagem (187)": ["10.0.0.252:/dados/BDClientes/BDssusinagem.fdb"],
-    "Sud Leather (188)": ["10.0.0.252:/dados/BDClientes/BDsud.fdb"],
-    "Tecno-MIM (152)": ["10.0.0.252:/dados/BDClientes/BDtecnomim.fdb"],
-    "Tecnovacum (138)": ["10.0.0.252:/dados/BDClientes/BDtecnovacum.fdb"],
-    "Temperapar (169)": ["10.0.0.252:/dados/BDClientes/BDtemperapar.fdb"],
-    "Temperaville (190)": ["10.0.0.252:/dados/BDClientes/BDtemperaville.fdb"],
-    "Thermtec - PR (185)": ["10.0.0.252:/dados/BDClientes/BDthermtec.fdb"],
-    "Traterm (167)": ["10.0.0.252:/dados/BDClientes/BDtraterm.fdb"],
-    "Usimatos (177)": ["10.0.0.252:/dados/BDClientes/BDusimatos.fdb"],
-    "Valence (160)": ["10.0.0.252:/dados/BDClientes/BDvalence.fdb", "10.0.0.252:/dados/BDClientes/BDvlc.fdb"],
-    "Valesemi (97)": ["10.0.0.252:/dados/BDClientes/BDvalesemi.fdb"],
-    "Volts (77)": ["10.0.0.252:/dados/BDClientes/BDvolts.fdb"],
-    "Wolfstore (149)": [
-        "10.0.0.252:/dados/BDClientes/BDstyle.fdb",
-        "10.0.0.252:/dados/BDClientes/BDwolfstore.fdb",
-        "10.0.0.252:/dados/BDClientes/BDwnordeste.fdb"
-    ]
+    operatingSystem: "Windows 11",
+    // Improvement specific fields
+    benefitDescription: "",
+    businessJustification: "",
+    futureProcedure: "",  // New field for future process
+    operationalImpact: "" // New field for operational impact
 };
 
 export default function SolicitationFormPage() {
@@ -186,6 +70,7 @@ export default function SolicitationFormPage() {
         }
     }), []);
 
+    const isImprovementRequest = requestType === "improvements";
     const currentRequestType = requestTypes[requestType];
 
     useEffect(() => {
@@ -328,6 +213,10 @@ export default function SolicitationFormPage() {
             requiredFields.push(
                 { field: "erpModule", message: "Módulo do ERP afetado é obrigatório" }
             );
+        } else if (requestType === "improvements") {
+            requiredFields.push(
+                { field: "benefitDescription", message: "Descrição do benefício é obrigatória" }
+            );
         }
 
         // Check each required field
@@ -390,40 +279,6 @@ export default function SolicitationFormPage() {
             setIsSubmitting(false);
         }
     };
-
-    // Memoized severity tooltips to prevent recreating on every render
-    const severityTooltip = useMemo(() => (
-        <div className="p-2 text-xs">
-            <h4 className="font-bold mb-2">Níveis de Gravidade:</h4>
-            <SeverityIcon level={1} text="Muito Baixa - Melhorias, sugestões de ajustes em programas, novas necessidades dos clientes, etc." />
-            <SeverityIcon level={2} text="Baixa - É aquele em que não há impedimento para trabalho dos colaboradores." />
-            <SeverityIcon level={3} text="Médio - É aquele em que há impedimento para trabalho individual dos colaboradores e será necessário uma solução." />
-            <SeverityIcon level={4} text="Alto - Impede o trabalho do usuário." />
-            <SeverityIcon level={5} text="Gravíssimo - Impede o funcionamento de áreas e processos críticos." />
-        </div>
-    ), []);
-
-    const urgencyTooltip = useMemo(() => (
-        <div className="p-2 text-xs">
-            <h4 className="font-bold mb-2">Níveis de Urgência:</h4>
-            <SeverityIcon level={1} text="Muito Baixa - Atende apenas um usuário" />
-            <SeverityIcon level={2} text="Baixa - Atende ou pode vir a atender mas de um usuário/cliente" />
-            <SeverityIcon level={3} text="Médio - Foi solicitado pela direção ou gerência do cliente" />
-            <SeverityIcon level={4} text="Alto - Afeta um ou poucos clientes dentro de um mesmo módulo" />
-            <SeverityIcon level={5} text="Gravíssimo - Afeta mais de um cliente" />
-        </div>
-    ), []);
-
-    const tendencyTooltip = useMemo(() => (
-        <div className="p-2 text-xs">
-            <h4 className="font-bold mb-2">Níveis de Tendência:</h4>
-            <SeverityIcon level={1} text="Raramente - Impede o funcionamento de áreas e processos críticos." />
-            <SeverityIcon level={2} text="Ocasionalmente - Afeta o processo atual, mas não aumenta as ações para a execução do processo." />
-            <SeverityIcon level={3} text="Eventualmente - Não afeta o processo atual, mas aumenta as ações para a execução do mesmo." />
-            <SeverityIcon level={4} text="Frequentemente - Aumento significativo de ações para executar o processo, ficando ruim no curto prazo." />
-            <SeverityIcon level={5} text="Sempre - Vai piorar rapidamente, tanto para o cliente quanto para a Colet." />
-        </div>
-    ), []);
 
     // Form field component for less repetition and consistent styling
     const FormField = ({
@@ -568,15 +423,15 @@ export default function SolicitationFormPage() {
                             {/* Detalhes do Incidente Section */}
                             <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
                                 <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-5">
-                                    Detalhes do Incidente
+                                    {isImprovementRequest ? "Detalhes da Melhoria" : "Detalhes do Incidente"}
                                 </h3>
 
                                 <div className="space-y-5">
                                     <FormField
                                         id="details"
-                                        label="Descrição do Incidente"
+                                        label={isImprovementRequest ? "Justificativa" : "Descrição do Incidente"}
                                         required
-                                        placeholder="Descreva detalhadamente o incidente"
+                                        placeholder={isImprovementRequest ? "Descreva detalhadamente a mudança proposta." : "Descreva detalhadamente o incidente"}
                                     >
                                         <textarea
                                             id="details"
@@ -584,7 +439,7 @@ export default function SolicitationFormPage() {
                                             value={formData.details}
                                             onChange={handleTextareaChange}
                                             rows={5}
-                                            placeholder="Descreva detalhadamente o incidente"
+                                            placeholder={isImprovementRequest ? "Descreva detalhadamente a mudança proposta." : "Descreva detalhadamente o incidente"}
                                             ref={el => inputRefs.current.details = el}
                                             className={`w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 ${errors.details ? "border-red-500" : "border-gray-300"}`}
                                             aria-invalid={errors.details ? "true" : "false"}
@@ -594,10 +449,70 @@ export default function SolicitationFormPage() {
 
                                     <FormField
                                         id="incidentDate"
-                                        label="Data e Hora da Ocorrência"
+                                        label={isImprovementRequest ? "Data da Solicitação" : "Data e Hora da Ocorrência"}
                                         type="datetime-local"
                                         required
                                     />
+
+                                    {/* Improvement specific fields */}
+                                    {isImprovementRequest && (
+                                        <>
+                                            <FormField
+                                                id="benefitDescription"
+                                                label="Descreva o Processo Atual"
+                                                required
+                                                placeholder="Descreva detalhadamente como o processo é executado atualmente."
+                                            >
+                                                <textarea
+                                                    id="benefitDescription"
+                                                    name="benefitDescription"
+                                                    value={formData.benefitDescription}
+                                                    onChange={handleTextareaChange}
+                                                    rows={3}
+                                                    placeholder="Descreva detalhadamente como o processo é executado atualmente."
+                                                    ref={el => inputRefs.current.benefitDescription = el}
+                                                    className={`w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 ${errors.benefitDescription ? "border-red-500" : "border-gray-300"}`}
+                                                    aria-invalid={errors.benefitDescription ? "true" : "false"}
+                                                    aria-describedby={errors.benefitDescription ? "benefitDescription-error" : undefined}
+                                                />
+                                            </FormField>
+
+                                            <FormField
+                                                id="futureProcedure"
+                                                label="Descreva o Processo Futuro"
+                                                placeholder="Descreva detalhadamente como o processo deverá funcionar após a implementação da melhoria."
+                                            >
+                                                <textarea
+                                                    id="futureProcedure"
+                                                    name="futureProcedure"
+                                                    value={formData.futureProcedure}
+                                                    onChange={handleTextareaChange}
+                                                    rows={3}
+                                                    placeholder="Descreva detalhadamente como o processo deverá funcionar após a implementação da melhoria."
+                                                    ref={el => inputRefs.current.futureProcedure = el}
+                                                    className="w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 border-gray-300"
+                                                />
+                                            </FormField>
+
+                                            <FormField
+                                                id="operationalImpact"
+                                                label="Impacto nas Operações"
+                                            >
+                                                <select
+                                                    id="operationalImpact"
+                                                    name="operationalImpact"
+                                                    value={formData.operationalImpact}
+                                                    onChange={handleInputChange}
+                                                    className="w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 border-gray-300"
+                                                >
+                                                    <option value="">Selecione o nível de impacto</option>
+                                                    <option value="Impacto significativo nas operações">Impacto significativo nas operações</option>
+                                                    <option value="Impacto moderado nas operações">Impacto moderado nas operações</option>
+                                                    <option value="Melhoria de processo sem impacto nas operações">Melhoria de processo sem impacto nas operações</option>
+                                                </select>
+                                            </FormField>
+                                        </>
+                                    )}
 
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                                         <FormField
@@ -727,70 +642,11 @@ export default function SolicitationFormPage() {
                                         aria-describedby={errors.affectedEstablishment ? "affectedEstablishment-error" : undefined}
                                     >
                                         <option value="">Selecione o cliente</option>
-                                        <option value="Agro Santos e Ernesto -PE- (97)">Agro Santos e Ernesto -PE- (97)</option>
-                                        <option value="Base HS/Blass/Filial (50)">Base HS/Blass/Filial (50)</option>
-                                        <option value="Berlinerluft (83)">Berlinerluft (83)</option>
-                                        <option value="Biometal (176)">Biometal (176)</option>
-                                        <option value="Blue/WJM/Juck (164)">Blue/WJM/Juck (164)</option>
-                                        <option value="Blueplast (96)">Blueplast (96)</option>
-                                        <option value="Bombas Beto (139)">Bombas Beto (139)</option>
-                                        <option value="Brutt (111)">Brutt (111)</option>
-                                        <option value="Colet (Duo) (15)">Colet (Duo) (15)</option>
-                                        <option value="Couros do Vale (179)">Couros do Vale (179)</option>
-                                        <option value="Crespi (66)">Crespi (66)</option>
-                                        <option value="Dalpiaz (148)">Dalpiaz (148)</option>
-                                        <option value="Dover (28)">Dover (28)</option>
-                                        <option value="Dzainer (55)">Dzainer (55)</option>
-                                        <option value="EKT Industrial (175)">EKT Industrial (175)</option>
-                                        <option value="Fable | F&R (165)">Fable | F&R (165)</option>
-                                        <option value="Fernanda (125)">Fernanda (125)</option>
-                                        <option value="Feroli (159)">Feroli (159)</option>
-                                        <option value="Golden Chemie (155)">Golden Chemie (155)</option>
-                                        <option value="Guarutemper (173)">Guarutemper (173)</option>
-                                        <option value="Imac (51)">Imac (51)</option>
-                                        <option value="Imex (156)">Imex (156)</option>
-                                        <option value="Indutherm (150)">Indutherm (150)</option>
-                                        <option value="JA Industrial (174)">JA Industrial (174)</option>
-                                        <option value="Jet Sola (186)">Jet Sola (186)</option>
-                                        <option value="LLV (34)">LLV (34)</option>
-                                        <option value="Mach Tooling (191)">Mach Tooling (191)</option>
-                                        <option value="Metal Moto (115)">Metal Moto (115)</option>
-                                        <option value="Metal Paulista (135)">Metal Paulista (135)</option>
-                                        <option value="Metal Sul (137)">Metal Sul (137)</option>
-                                        <option value="Metal Técnica (2)">Metal Técnica (2)</option>
-                                        <option value="MK Sinter (123)">MK Sinter (123)</option>
-                                        <option value="Natur (7)">Natur (7)</option>
-                                        <option value="Niit Plasma (147)">Niit Plasma (147)</option>
-                                        <option value="Nobre (119)">Nobre (119)</option>
-                                        <option value="Nobre Contabilidade Outras (121)">Nobre Contabilidade Outras (121)</option>
-                                        <option value="Palagi (172)">Palagi (172)</option>
-                                        <option value="Paschoal & RT Metais (127)">Paschoal & RT Metais (127)</option>
-                                        <option value="Padrão Componentes (183)">Padrão Componentes (183)</option>
-                                        <option value="Padrão Curtume (94)">Padrão Curtume (94)</option>
-                                        <option value="Padrão Manufatura (59)">Padrão Manufatura (59)</option>
-                                        <option value="Padrão Tratamento Térmico (136)">Padrão Tratamento Térmico (136)</option>
-                                        <option value="Pitía Bilhar (170)">Pitía Bilhar (170)</option>
-                                        <option value="Plasma (117)">Plasma (117)</option>
-                                        <option value="Projelmec (74)">Projelmec (74)</option>
-                                        <option value="Reuter (65)">Reuter (65)</option>
-                                        <option value="Rototech (90)">Rototech (90)</option>
-                                        <option value="Salini MT (184)">Salini MT (184)</option>
-                                        <option value="SFTech (171)">SFTech (171)</option>
-                                        <option value="Sinttec (153)">Sinttec (153)</option>
-                                        <option value="Spier (189)">Spier (189)</option>
-                                        <option value="SS Usinagem (187)">SS Usinagem (187)</option>
-                                        <option value="Sud Leather (188)">Sud Leather (188)</option>
-                                        <option value="Tecno-MIM (152)">Tecno-MIM (152)</option>
-                                        <option value="Tecnovacum (138)">Tecnovacum (138)</option>
-                                        <option value="Temperapar (169)">Temperapar (169)</option>
-                                        <option value="Temperaville (190)">Temperaville (190)</option>
-                                        <option value="Thermtec - PR (185)">Thermtec - PR (185)</option>
-                                        <option value="Traterm (167)">Traterm (167)</option>
-                                        <option value="Usimatos (177)">Usimatos (177)</option>
-                                        <option value="Valence (160)">Valence (160)</option>
-                                        <option value="Valesemi (97)">Valesemi (97)</option>
-                                        <option value="Volts (77)">Volts (77)</option>
-                                        <option value="Wolfstore (149)">Wolfstore (149)</option>
+                                        {Object.keys(clientDatabases).map((client) => (
+                                            <option key={client} value={client}>
+                                                {client}
+                                            </option>
+                                        ))}
                                     </select>
                                 </FormField>
 
@@ -866,8 +722,8 @@ export default function SolicitationFormPage() {
 
                                     <FormField
                                         id="programCodes"
-                                        label="Códigos/Nomes de Programas Afetados"
-                                        placeholder="Ex: PROG001 - Controle de Estoque"
+                                        label={isImprovementRequest ? "Programas Relacionados (se aplicável)" : "Códigos/Nomes de Programas Afetados"}
+                                        placeholder={isImprovementRequest ? "Ex: PROG001 - Controle de Estoque" : "Ex: PROG001 - Controle de Estoque"}
                                     />
 
                                     <FormField
@@ -881,6 +737,7 @@ export default function SolicitationFormPage() {
                                             onChange={handleInputChange}
                                             className="w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 border-gray-300"
                                         >
+                                            <option value="Linux">Linux</option>
                                             <option value="Windows 7">Windows 7</option>
                                             <option value="Windows 8">Windows 8</option>
                                             <option value="Windows 8.1">Windows 8.1</option>
@@ -889,6 +746,8 @@ export default function SolicitationFormPage() {
                                             <option value="Windows Server 2012">Windows Server 2012</option>
                                             <option value="Windows Server 2016">Windows Server 2016</option>
                                             <option value="Windows Server 2019">Windows Server 2019</option>
+                                            <option value="Windows Server 2022">Windows Server 2022</option>
+                                            <option value="Windows Server 2025">Windows Server 2025</option>
                                         </select>
                                     </FormField>
                                 </div>
@@ -897,7 +756,7 @@ export default function SolicitationFormPage() {
                             {/* Attachments Section */}
                             <div className="border-t border-gray-200 dark:border-gray-700 pt-6">
                                 <h3 className="text-lg font-medium text-gray-800 dark:text-gray-200 mb-3">
-                                    Anexos (capturas de tela ou documentos)
+                                    Anexos {isImprovementRequest ? "(mockups, exemplos ou documentos)" : "(capturas de tela ou documentos)"}
                                 </h3>
                                 <div className="flex items-center justify-center w-full">
                                     <label
