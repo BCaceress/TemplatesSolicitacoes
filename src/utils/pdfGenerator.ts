@@ -70,8 +70,18 @@ export const generateSolicitationPDF = async (
   formData: FormData,
   userName: string,
   userRole: string,
-  requestType: RequestType
+  requestType: RequestType | null
 ) => {
+  // Early return or default values if requestType is null
+  if (!requestType) {
+    // Use a default request type
+    requestType = {
+      title: 'Solicitação',
+      description: 'Solicitação do sistema',
+      color: '#3498db', // Default blue color
+    };
+  }
+
   // Create a hidden div with formatted content for PDF
   const pdfContent = document.createElement("div");
   pdfContent.style.padding = "16px";
@@ -86,7 +96,8 @@ export const generateSolicitationPDF = async (
   try {
     const incidentDate = new Date(formData.incidentDate);
     formattedIncidentDate = incidentDate.toLocaleString('pt-BR');
-  } catch (e) {
+  } catch {
+    // Using an empty catch block without parameter avoids the unused variable
     formattedIncidentDate = formData.incidentDate || 'Não especificada';
   }
 
@@ -234,14 +245,6 @@ export const generateSolicitationPDF = async (
     compress: true
   });
 
-  // Set margins using alternative methods if needed (through internal configuration or per-page)
-  const margin = {
-    top: 18,
-    right: 18,
-    bottom: 25,
-    left: 18
-  };
-
   // Add metadata to the PDF
   pdf.setProperties({
     title: `${requestType.title}: ${formData.title}`,
@@ -251,14 +254,14 @@ export const generateSolicitationPDF = async (
   });
 
   const canvas = await html2canvas(pdfContent, {
-    scale: 2.5, 
+    scale: 2.5,
     useCORS: true,
     logging: false,
     backgroundColor: '#ffffff'
   });
 
   const imgData = canvas.toDataURL('image/png');
-  const imgWidth = 210; 
+  const imgWidth = 210;
   const pageHeight = 287;
   const imgHeight = canvas.height * imgWidth / canvas.width;
   let heightLeft = imgHeight;
@@ -305,7 +308,7 @@ export const generateSolicitationPDF = async (
 
       if (file.type.startsWith('image/')) {
         const reader = new FileReader();
-        await new Promise((resolve, reject) => {
+        await new Promise<void>((resolve) => { // Remove unused 'reject' parameter
           reader.onload = function (event) {
             try {
               if (!event.target || event.target.result === null) {
@@ -373,7 +376,7 @@ export const generateSolicitationPDF = async (
               pdf.text(caption, captionX, yPosition);
 
               yPosition += 20; // Additional space after image and caption
-              resolve(null);
+              resolve(); // Call resolve without arguments
             } catch (error) {
               console.error("Error processing image:", error);
               // Fallback for image processing errors
@@ -384,7 +387,7 @@ export const generateSolicitationPDF = async (
               pdf.setFontSize(10);
               pdf.text(`Erro ao processar a imagem: ${file.name}`, 20, yPosition + 12);
               yPosition += 30;
-              resolve(null);
+              resolve(); // Call resolve without arguments
             }
           };
           reader.onerror = function (error) {
@@ -396,7 +399,7 @@ export const generateSolicitationPDF = async (
             pdf.setFontSize(10);
             pdf.text(`Erro ao carregar o arquivo: ${file.name}`, 20, yPosition + 12);
             yPosition += 30;
-            resolve(null);
+            resolve(); // Call resolve without arguments
           };
           reader.readAsDataURL(file);
         });
@@ -442,7 +445,6 @@ export const generateSolicitationPDF = async (
   // Generate a structured filename for developers - without bug ID
   const date = new Date();
   const dateString = `${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}`;
-  const timeString = `${date.getHours().toString().padStart(2, '0')}${date.getMinutes().toString().padStart(2, '0')}`;
   const filename = `${requestType.title.replace(/\s+/g, '_')}_${dateString}_${formData.title.substring(0, 20).replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
 
   // Save the PDF
