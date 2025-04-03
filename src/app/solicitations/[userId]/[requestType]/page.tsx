@@ -4,10 +4,18 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function SolicitationTypeBridgePage() {
-    const { userId, requestType } = useParams();
+    const params = useParams();
+    const userId = params.userId as string;
+    const requestType = params.requestType as string;
     const router = useRouter();
 
     useEffect(() => {
+        // Check if userId and requestType are valid
+        if (!userId || !requestType) {
+            router.push('/solicitations');
+            return;
+        }
+
         // Check if the request type is valid
         const validRequestTypes = ['bugs', 'improvements'];
         if (!validRequestTypes.includes(requestType)) {

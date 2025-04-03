@@ -1,5 +1,6 @@
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import React from 'react'; // Add React import for JSX namespace
 
 interface FormData {
   title: string;
@@ -15,7 +16,7 @@ interface FormData {
   moduleVersion: string;
   programCodes: string;
   affectedEstablishment: string;
-  selectedDatabase: string; // New field for database
+  selectedDatabase: string;
   operatingSystem: string;
 }
 
@@ -23,7 +24,7 @@ interface RequestType {
   title: string;
   description: string;
   color: string;
-  icon?: JSX.Element;
+  icon?: React.ReactElement;
 }
 
 /**
@@ -230,9 +231,16 @@ export const generateSolicitationPDF = async (
     orientation: 'portrait',
     unit: 'mm',
     format: 'a4',
-    compress: true,
-    margins: { top: 18, right: 18, bottom: 25, left: 18 } // Increased bottom margin
+    compress: true
   });
+
+  // Set margins using alternative methods if needed (through internal configuration or per-page)
+  const margin = {
+    top: 18,
+    right: 18,
+    bottom: 25,
+    left: 18
+  };
 
   // Add metadata to the PDF
   pdf.setProperties({
@@ -243,15 +251,15 @@ export const generateSolicitationPDF = async (
   });
 
   const canvas = await html2canvas(pdfContent, {
-    scale: 2.5, // Higher scale for better quality
+    scale: 2.5, 
     useCORS: true,
     logging: false,
     backgroundColor: '#ffffff'
   });
 
   const imgData = canvas.toDataURL('image/png');
-  const imgWidth = 210; // A4 width in mm
-  const pageHeight = 287; // Reduced height to provide bottom margin (A4 is 297mm)
+  const imgWidth = 210; 
+  const pageHeight = 287;
   const imgHeight = canvas.height * imgWidth / canvas.width;
   let heightLeft = imgHeight;
   let position = 0;
@@ -300,6 +308,9 @@ export const generateSolicitationPDF = async (
         await new Promise((resolve, reject) => {
           reader.onload = function (event) {
             try {
+              if (!event.target || event.target.result === null) {
+                throw new Error("Failed to load image data");
+              }
               const imgData = event.target.result as string;
 
               // Calculate dimensions to fit on page with margins

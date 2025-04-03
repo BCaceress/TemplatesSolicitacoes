@@ -13,10 +13,34 @@ import Tooltip from "@mui/material/Tooltip";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import PropTypes from "prop-types";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+// Define interface for form data to avoid type issues
+interface FormData {
+    title: string;
+    details: string;
+    criticality: string;
+    attachments: File[];
+    incidentDate: string;
+    impact: string;
+    affectsOthers: string;
+    frequency: string;
+    erpModule: string;
+    moduleVersion: string;
+    programCodes: string;
+    affectedEstablishment: string;
+    selectedDatabase: string;
+    operatingSystem: string;
+    benefitDescription: string;
+    businessJustification: string;
+    futureProcedure: string;
+    operationalImpact: string;
+    screenName: string; // Add the missing screenName property
+    [key: string]: string | File[] | number; // Index signature to allow dynamic access
+}
 
 // Initial form state to avoid repetition
-const initialFormState = {
+const initialFormState: FormData = {
     title: "",
     details: "",
     criticality: "",
@@ -37,7 +61,8 @@ const initialFormState = {
     benefitDescription: "",
     businessJustification: "",
     futureProcedure: "",  // New field for future process
-    operationalImpact: "" // New field for operational impact
+    operationalImpact: "", // New field for operational impact
+    screenName: "" // Initialize the missing screenName property
 };
 
 export default function SolicitationFormPage() {
@@ -47,11 +72,11 @@ export default function SolicitationFormPage() {
     const [userRole, setUserRole] = useState("");
     const { selectedUser } = useUser();
 
-    const [formData, setFormData] = useState(initialFormState);
-    const [availableDatabases, setAvailableDatabases] = useState([]);
-    const inputRefs = useRef({});
+    const [formData, setFormData] = useState<FormData>(initialFormState);
+    const [availableDatabases, setAvailableDatabases] = useState<string[]>([]);
+    const inputRefs = useRef<Record<string, HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement | null>>({});
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState<Record<string, string>>({});
     const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
     // Get request type details - memoized to prevent recreation on every render
@@ -71,7 +96,7 @@ export default function SolicitationFormPage() {
     }), []);
 
     const isImprovementRequest = requestType === "improvements";
-    const currentRequestType = requestTypes[requestType];
+    const currentRequestType = typeof requestType === 'string' ? requestTypes[requestType as keyof typeof requestTypes] : null;
 
     useEffect(() => {
         // If we have the user in context, use it
@@ -117,9 +142,10 @@ export default function SolicitationFormPage() {
     }, [userId, selectedUser]);
 
     // Modified input handler that preserves focus and updates available databases
-    const handleInputChange = useCallback((e) => {
+    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        const activeElementName = document.activeElement.name;
+        const activeElement = document.activeElement as HTMLElement;
+        const activeElementName = activeElement.getAttribute('name');
 
         setFormData(prevData => ({
             ...prevData,
@@ -128,7 +154,7 @@ export default function SolicitationFormPage() {
 
         // Update available databases when the client changes
         if (name === 'affectedEstablishment') {
-            const databases = clientDatabases[value] || [];
+            const databases = clientDatabases[value as keyof typeof clientDatabases] || [];
             setAvailableDatabases(databases);
 
             // Auto-select the only database if there's just one option
@@ -149,13 +175,13 @@ export default function SolicitationFormPage() {
         // Restore focus after state update
         setTimeout(() => {
             if (activeElementName && inputRefs.current[activeElementName]) {
-                inputRefs.current[activeElementName].focus();
+                inputRefs.current[activeElementName]?.focus();
             }
         }, 0);
     }, []);
 
     // Add a specific handler for textarea to avoid the reverse typing issue
-    const handleTextareaChange = useCallback((e) => {
+    const handleTextareaChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         const element = e.target;
         const selectionStart = element.selectionStart;
@@ -168,14 +194,17 @@ export default function SolicitationFormPage() {
         // Properly restore cursor position for textarea
         requestAnimationFrame(() => {
             if (inputRefs.current[name]) {
-                inputRefs.current[name].focus();
-                inputRefs.current[name].selectionStart = selectionStart;
-                inputRefs.current[name].selectionEnd = selectionStart;
+                const textareaRef = inputRefs.current[name] as HTMLTextAreaElement;
+                textareaRef.focus();
+                textareaRef.selectionStart = selectionStart;
+                textareaRef.selectionEnd = selectionStart;
             }
         });
     }, []);
 
-    const handleFileChange = useCallback((e) => {
+    const handleFileChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files) return;
+
         const files = Array.from(e.target.files);
         setFormData(prevData => ({
             ...prevData,
@@ -183,7 +212,7 @@ export default function SolicitationFormPage() {
         }));
     }, []);
 
-    const removeAttachment = useCallback((index) => {
+    const removeAttachment = useCallback((index: number) => {
         setFormData(prevData => {
             const updatedAttachments = [...prevData.attachments];
             updatedAttachments.splice(index, 1);
@@ -196,7 +225,7 @@ export default function SolicitationFormPage() {
 
     // Form validation - memoized
     const validateForm = useCallback(() => {
-        const newErrors = {};
+        const newErrors: Record<string, string> = {};
         const requiredFields = [
             { field: "title", message: "Título é obrigatório" },
             { field: "details", message: "Detalhes são obrigatórios" },
@@ -221,7 +250,8 @@ export default function SolicitationFormPage() {
 
         // Check each required field
         requiredFields.forEach(({ field, message }) => {
-            if (!formData[field] || (typeof formData[field] === "string" && !formData[field].trim())) {
+            const value = formData[field];
+            if (value === undefined || (typeof value === "string" && !value.trim())) {
                 newErrors[field] = message;
             }
         });
@@ -230,7 +260,7 @@ export default function SolicitationFormPage() {
         return Object.keys(newErrors).length === 0;
     }, [formData, requestType]);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!validateForm()) {
@@ -289,6 +319,14 @@ export default function SolicitationFormPage() {
         tooltip = null,
         children = null,
         placeholder = ""
+    }: {
+        id: string;
+        label: string;
+        type?: string;
+        required?: boolean;
+        tooltip?: React.ReactNode;
+        children?: React.ReactNode;
+        placeholder?: string;
     }) => (
         <div className="mb-5">
             <label
@@ -312,10 +350,12 @@ export default function SolicitationFormPage() {
                     type={type}
                     id={id}
                     name={id}
-                    value={formData[id]}
+                    value={formData[id] as string}
                     onChange={handleInputChange}
                     placeholder={placeholder}
-                    ref={el => inputRefs.current[id] = el}
+                    ref={(el) => {
+                        inputRefs.current[id] = el;
+                    }}
                     className={`w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 ${errors[id] ? "border-red-500" : "border-gray-300"}`}
                     aria-invalid={errors[id] ? "true" : "false"}
                     aria-describedby={errors[id] ? `${id}-error` : undefined}
@@ -330,6 +370,7 @@ export default function SolicitationFormPage() {
         </div>
     );
 
+    // Type checking with PropTypes
     FormField.propTypes = {
         id: PropTypes.string.isRequired,
         label: PropTypes.string.isRequired,
@@ -440,7 +481,9 @@ export default function SolicitationFormPage() {
                                             onChange={handleTextareaChange}
                                             rows={5}
                                             placeholder={isImprovementRequest ? "Descreva detalhadamente a mudança proposta." : "Descreva detalhadamente o incidente"}
-                                            ref={el => inputRefs.current.details = el}
+                                            ref={(el) => {
+                                                inputRefs.current.details = el;
+                                            }}
                                             className={`w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 ${errors.details ? "border-red-500" : "border-gray-300"}`}
                                             aria-invalid={errors.details ? "true" : "false"}
                                             aria-describedby={errors.details ? "details-error" : undefined}
@@ -470,7 +513,9 @@ export default function SolicitationFormPage() {
                                                     onChange={handleTextareaChange}
                                                     rows={3}
                                                     placeholder="Descreva detalhadamente como o processo é executado atualmente."
-                                                    ref={el => inputRefs.current.benefitDescription = el}
+                                                    ref={(el) => {
+                                                        inputRefs.current.benefitDescription = el;
+                                                    }}
                                                     className={`w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 ${errors.benefitDescription ? "border-red-500" : "border-gray-300"}`}
                                                     aria-invalid={errors.benefitDescription ? "true" : "false"}
                                                     aria-describedby={errors.benefitDescription ? "benefitDescription-error" : undefined}
@@ -489,7 +534,9 @@ export default function SolicitationFormPage() {
                                                     onChange={handleTextareaChange}
                                                     rows={3}
                                                     placeholder="Descreva detalhadamente como o processo deverá funcionar após a implementação da melhoria."
-                                                    ref={el => inputRefs.current.futureProcedure = el}
+                                                    ref={(el) => {
+                                                        inputRefs.current.futureProcedure = el;
+                                                    }}
                                                     className="w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 border-gray-300"
                                                 />
                                             </FormField>
@@ -503,6 +550,9 @@ export default function SolicitationFormPage() {
                                                     name="operationalImpact"
                                                     value={formData.operationalImpact}
                                                     onChange={handleInputChange}
+                                                    ref={(el) => {
+                                                        inputRefs.current.operationalImpact = el;
+                                                    }}
                                                     className="w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 border-gray-300"
                                                 >
                                                     <option value="">Selecione o nível de impacto</option>
@@ -526,6 +576,9 @@ export default function SolicitationFormPage() {
                                                 name="impact"
                                                 value={formData.impact}
                                                 onChange={handleInputChange}
+                                                ref={(el) => {
+                                                    inputRefs.current.impact = el;
+                                                }}
                                                 className={`w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 ${errors.impact ? "border-red-500" : "border-gray-300"}`}
                                                 aria-invalid={errors.impact ? "true" : "false"}
                                                 aria-describedby={errors.impact ? "impact-error" : undefined}
@@ -550,6 +603,9 @@ export default function SolicitationFormPage() {
                                                 name="criticality"
                                                 value={formData.criticality}
                                                 onChange={handleInputChange}
+                                                ref={(el) => {
+                                                    inputRefs.current.criticality = el;
+                                                }}
                                                 className={`w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 ${errors.criticality ? "border-red-500" : "border-gray-300"}`}
                                                 aria-invalid={errors.criticality ? "true" : "false"}
                                                 aria-describedby={errors.criticality ? "criticality-error" : undefined}
@@ -574,6 +630,9 @@ export default function SolicitationFormPage() {
                                                 name="frequency"
                                                 value={formData.frequency}
                                                 onChange={handleInputChange}
+                                                ref={(el) => {
+                                                    inputRefs.current.frequency = el;
+                                                }}
                                                 className={`w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 ${errors.frequency ? "border-red-500" : "border-gray-300"}`}
                                                 aria-invalid={errors.frequency ? "true" : "false"}
                                                 aria-describedby={errors.frequency ? "frequency-error" : undefined}
@@ -637,6 +696,9 @@ export default function SolicitationFormPage() {
                                         name="affectedEstablishment"
                                         value={formData.affectedEstablishment}
                                         onChange={handleInputChange}
+                                        ref={(el) => {
+                                            inputRefs.current.affectedEstablishment = el;
+                                        }}
                                         className={`w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 ${errors.affectedEstablishment ? "border-red-500" : "border-gray-300"}`}
                                         aria-invalid={errors.affectedEstablishment ? "true" : "false"}
                                         aria-describedby={errors.affectedEstablishment ? "affectedEstablishment-error" : undefined}
@@ -661,6 +723,9 @@ export default function SolicitationFormPage() {
                                         name="selectedDatabase"
                                         value={formData.selectedDatabase}
                                         onChange={handleInputChange}
+                                        ref={(el) => {
+                                            inputRefs.current.selectedDatabase = el;
+                                        }}
                                         className={`w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 ${errors.selectedDatabase ? "border-red-500" : "border-gray-300"}`}
                                         aria-invalid={errors.selectedDatabase ? "true" : "false"}
                                         aria-describedby={errors.selectedDatabase ? "selectedDatabase-error" : undefined}
@@ -691,6 +756,9 @@ export default function SolicitationFormPage() {
                                             name="erpModule"
                                             value={formData.erpModule}
                                             onChange={handleInputChange}
+                                            ref={(el) => {
+                                                inputRefs.current.erpModule = el;
+                                            }}
                                             className={`w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 ${errors.erpModule ? "border-red-500" : "border-gray-300"}`}
                                             aria-invalid={errors.erpModule ? "true" : "false"}
                                             aria-describedby={errors.erpModule ? "erpModule-error" : undefined}
@@ -735,6 +803,9 @@ export default function SolicitationFormPage() {
                                             name="operatingSystem"
                                             value={formData.operatingSystem}
                                             onChange={handleInputChange}
+                                            ref={(el) => {
+                                                inputRefs.current.operatingSystem = el;
+                                            }}
                                             className="w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 border-gray-300"
                                         >
                                             <option value="Linux">Linux</option>

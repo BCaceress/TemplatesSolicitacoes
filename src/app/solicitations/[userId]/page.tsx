@@ -71,7 +71,7 @@ export default function SolicitationTypePage() {
         },
         {
             id: "improvements",
-            title: "Sugerir Melhoria",
+            title: "Sugerir Mudanças",
             description: "Propor aprimoramentos e novas funcionalidades",
             color: "#3C787A",
             icon: <LightbulbOutlinedIcon style={{ color: 'white', fontSize: 24 }} />

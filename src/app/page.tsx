@@ -2,11 +2,18 @@
 import { useUser } from "@/contexts/UserContext";
 import { useRouter } from "next/navigation";
 
+// Define interface for user object
+interface User {
+  id: string;
+  name: string;
+  role: string;
+}
+
 export default function Home() {
   const router = useRouter();
   const { setSelectedUser } = useUser();
 
-  const supportTeam = [
+  const supportTeam: User[] = [
     { name: "Bruno Fernandes", id: "bruno", role: "Suporte" },
     { name: "Cristiane Lichmann", id: "cristiane", role: "Suporte" },
     { name: "Diego Cordeiro", id: "diegoC", role: "Suporte" },
@@ -15,12 +22,12 @@ export default function Home() {
     { name: "Thiago Simon", id: "thiago", role: "Suporte" },
   ];
 
-  const analystTeam = [
+  const analystTeam: User[] = [
     { name: "Cristiano Huhnfleisch", id: "cristiano", role: "Implantação" },
     { name: "Matheus Pochmann", id: "matheus", role: "Implantação" },
   ];
 
-  const handleUserSelect = (user) => {
+  const handleUserSelect = (user: User) => {
     setSelectedUser({
       id: user.id,
       name: user.name,
@@ -77,7 +84,7 @@ export default function Home() {
                       </svg>
                     </div>
                     <h3 className="font-semibold text-lg text-[#3C787A] dark:text-[#3C787A] mb-3">
-                      Sugerir Melhorias
+                      Sugerir Mudanças
                     </h3>
                     <p className="text-gray-600 dark:text-gray-300 text-sm">
                       Proponha aprimoramentos e funcionalidades para nossos sistemas, contribuindo para a evolução das soluções.
