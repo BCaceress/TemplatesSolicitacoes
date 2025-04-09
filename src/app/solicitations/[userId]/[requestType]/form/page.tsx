@@ -45,8 +45,13 @@ const initialFormState: FormData = {
     details: "",
     criticality: "",
     attachments: [],
-    // Incident details
-    incidentDate: new Date().toISOString().slice(0, 16),
+
+    incidentDate: (() => {
+        const now = new Date();
+        // Ajusta para UTC-3
+        const brazilTime = new Date(now.getTime() - (3 * 60 * 60 * 1000));
+        return brazilTime.toISOString().slice(0, 16);
+    })(),
     impact: "",
     affectsOthers: "no",
     frequency: "",
@@ -275,9 +280,15 @@ export default function SolicitationFormPage() {
         setIsSubmitting(true);
 
         try {
-            // Generate PDF with form data using the utility function
+            // Update the form data with current date and time right before submission
+            const updatedFormData = {
+                ...formData,
+                incidentDate: new Date().toISOString().slice(0, 16)
+            };
+
+            // Generate PDF with updated form data using the utility function
             await generateSolicitationPDF(
-                formData,
+                updatedFormData,
                 userName,
                 userRole,
                 currentRequestType
@@ -292,7 +303,7 @@ export default function SolicitationFormPage() {
                 requestType,
                 userName,
                 userRole,
-                ...formData
+                ...updatedFormData
             });
 
             // Show success message
@@ -495,7 +506,21 @@ export default function SolicitationFormPage() {
                                         label={isImprovementRequest ? "Data da Solicitação" : "Data e Hora da Ocorrência"}
                                         type="datetime-local"
                                         required
-                                    />
+                                    >
+                                        <input
+                                            type="datetime-local"
+                                            id="incidentDate"
+                                            name="incidentDate"
+                                            value={formData.incidentDate}
+                                            onChange={handleInputChange}
+                                            ref={(el) => {
+                                                inputRefs.current.incidentDate = el;
+                                            }}
+                                            className={`w-full px-4 py-3 border rounded-md focus:ring-2 focus:ring-[#09A08D] focus:border-[#09A08D] transition-all dark:bg-[#333] dark:border-gray-600 ${errors.incidentDate ? "border-red-500" : "border-gray-300"}`}
+                                            aria-invalid={errors.incidentDate ? "true" : "false"}
+                                            aria-describedby={errors.incidentDate ? "incidentDate-error" : undefined}
+                                        />
+                                    </FormField>
 
                                     {/* Improvement specific fields */}
                                     {isImprovementRequest && (

@@ -18,6 +18,10 @@ interface FormData {
   affectedEstablishment: string;
   selectedDatabase: string;
   operatingSystem: string;
+  // Additional properties for improvement requests
+  benefitDescription?: string;
+  futureProcedure?: string;
+  operationalImpact?: string;
 }
 
 interface RequestType {
@@ -64,6 +68,28 @@ const getCriticalityScoreLabel = (score: number): string => {
 };
 
 /**
+ * Formata a data para exibição no formato brasileiro, subtraindo 3 horas
+ */
+const formatBrazilianDate = (dateString: string): string => {
+  try {
+    // Converte a string de data ISO para objeto Date
+    const date = new Date(dateString);
+
+    // Subtrai 3 horas para ajustar ao fuso horário desejado
+    const adjustedDate = new Date(date.getTime() - (3 * 60 * 60 * 1000));
+
+    // Formata para o padrão brasileiro (dia/mês/ano hora:minutos)
+    return adjustedDate.toLocaleString('pt-BR');
+  } catch (error) {
+    console.error("Erro ao formatar a data:", error);
+    // Em caso de erro, retorna a data atual (também ajustada)
+    const now = new Date();
+    const adjusted = new Date(now.getTime() - (3 * 60 * 60 * 1000));
+    return adjusted.toLocaleString('pt-BR');
+  }
+};
+
+/**
  * Generates a PDF based on the solicitation form data with enhanced professional design
  */
 export const generateSolicitationPDF = async (
@@ -82,6 +108,9 @@ export const generateSolicitationPDF = async (
     };
   }
 
+  // Check if this is an improvement request based on the requestType title
+  const isImprovementRequest = requestType.title.toLowerCase().includes('melhoria');
+
   // Create a hidden div with formatted content for PDF
   const pdfContent = document.createElement("div");
   pdfContent.style.padding = "16px";
@@ -91,15 +120,8 @@ export const generateSolicitationPDF = async (
   // Get current date formatted
   const currentDate = new Date().toLocaleDateString('pt-BR');
 
-  // Format incident date for display
-  let formattedIncidentDate = '';
-  try {
-    const incidentDate = new Date(formData.incidentDate);
-    formattedIncidentDate = incidentDate.toLocaleString('pt-BR');
-  } catch {
-    // Using an empty catch block without parameter avoids the unused variable
-    formattedIncidentDate = formData.incidentDate || 'Não especificada';
-  }
+  // Formatar a data do incidente utilizando a hora definida pelo usuário
+  let formattedIncidentDate = formatBrazilianDate(formData.incidentDate);
 
   // Calculate criticality score
   const criticalityScore = calculateCriticalityScore(formData.impact, formData.criticality, formData.frequency);
@@ -118,7 +140,8 @@ export const generateSolicitationPDF = async (
   // This ensures the box grows with the content while maintaining minimum size
   const descriptionMinHeight = Math.max(120, Math.min(500, 100 + formData.details.length / 3));
 
-  pdfContent.innerHTML = `
+  // HTML content for the PDF will differ based on the request type
+  let htmlContent = `
     <div style="font-family: 'Arial', sans-serif; max-width: 800px; color: #333; line-height: 1.5; background-color: white; margin: 0 auto;">
       <!-- Header - Logo, Title and date -->
       <div style="background-color: #3A3A3A; color: white; padding: 10px 15px; border-radius: 8px 8px 0 0; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
@@ -186,14 +209,56 @@ export const generateSolicitationPDF = async (
       
       <!-- Description section - Updated for better text handling -->
       <div style="margin-bottom: 10px; background-color: #fff; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #eaecef;">
-        <h4 style="font-size: 11px; font-weight: 600; color: #fff; background-color: #3A3A3A; padding: 6px 12px; margin: 0; display: flex; align-items: center;">
-          DESCRIÇÃO DO PROBLEMA
+        <h4 style="font-size: 10px; font-weight: 600; color: #fff; background-color: #3A3A3A; padding: 6px 12px; margin: 0; display: flex; align-items: center;">
+          ${isImprovementRequest ? 'JUSTIFICATIVA DA MELHORIA' : 'DESCRIÇÃO DO PROBLEMA'}
         </h4>
-        <div style="background-color: #fff; padding: 12px; border-radius: 0 0 8px 8px; font-size: 11px; line-height: 1.5; text-align: justify; min-height: ${descriptionMinHeight}px; white-space: pre-wrap; word-break: break-word; overflow-wrap: break-word;">
+        <div style="background-color: #fff; padding: 12px; border-radius: 0 0 8px 8px; font-size: 9px; line-height: 1.5; text-align: justify; min-height: ${descriptionMinHeight}px; white-space: pre-wrap; word-break: break-word; overflow-wrap: break-word;">
           ${formData.details.trim() || 'Nenhuma descrição fornecida.'}
+        </div>
+      </div>`;
+
+  // Add improvement specific sections if this is an improvement request
+  if (isImprovementRequest) {
+    // Calculate min height based on content length for process descriptions
+    const currentProcessMinHeight = Math.max(100, Math.min(300, 80 + (formData.benefitDescription?.length || 0) / 4));
+    const futureProcessMinHeight = Math.max(100, Math.min(300, 80 + (formData.futureProcedure?.length || 0) / 4));
+
+    htmlContent += `
+      <!-- Current Process Section - Only for improvement requests -->
+      <div style="margin-bottom: 10px; background-color: #fff; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #eaecef;">
+        <h4 style="font-size: 10px; font-weight: 600; color: #fff; background-color: #3A3A3A; padding: 6px 12px; margin: 0; display: flex; align-items: center;">
+          PROCESSO ATUAL
+        </h4>
+        <div style="background-color: #fff; padding: 12px; border-radius: 0 0 8px 8px; font-size: 9px; line-height: 1.5; text-align: justify; min-height: ${currentProcessMinHeight}px; white-space: pre-wrap; word-break: break-word; overflow-wrap: break-word;">
+          ${formData.benefitDescription?.trim() || 'Nenhuma descrição do processo atual fornecida.'}
+        </div>
+      </div>
+
+      <!-- Future Process Section - Only for improvement requests -->
+      <div style="margin-bottom: 10px; background-color: #fff; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #eaecef;">
+        <h4 style="font-size: 10px; font-weight: 600; color: #fff; background-color: #3A3A3A; padding: 6px 12px; margin: 0; display: flex; align-items: center;">
+          PROCESSO FUTURO DESEJADO
+        </h4>
+        <div style="background-color: #fff; padding: 12px; border-radius: 0 0 8px 8px; font-size: 9px; line-height: 1.5; text-align: justify; min-height: ${futureProcessMinHeight}px; white-space: pre-wrap; word-break: break-word; overflow-wrap: break-word;">
+          ${formData.futureProcedure?.trim() || 'Nenhuma descrição do processo futuro fornecida.'}
         </div>
       </div>
       
+      <!-- Operational Impact - Only for improvement requests -->
+      <div style="margin-bottom: 10px; background-color: #fff; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #eaecef;">
+        <h4 style="font-size: 10px; font-weight: 600; color: #fff; background-color: #3A3A3A; padding: 6px 12px; margin: 0; display: flex; align-items: center;">
+          IMPACTO OPERACIONAL
+        </h4>
+        <div style="background-color: #fff; padding: 12px; border-radius: 0 0 8px 8px; font-size: 9px; line-height: 1.5; display: flex; align-items: center; min-height: 50px;">
+          <div style="background-color: ${formData.operationalImpact ? '#f8f9fb' : '#fff'}; padding: 8px 12px; border-radius: 4px; border: 1px solid ${formData.operationalImpact ? '#e1e4e8' : 'transparent'}; width: 100%;">
+            ${formData.operationalImpact || 'Não especificado'}
+          </div>
+        </div>
+      </div>`;
+  }
+
+  // Technical Information section (common for both types)
+  htmlContent += `
       <!-- Technical Information -->
       <div style="margin-bottom: 10px; background-color: #fff; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #eaecef;">
         <h4 style="font-size: 11px; font-weight: 600; color: #fff; background-color: #3A3A3A; padding: 6px 12px; margin: 0; display: flex; align-items: center;">
@@ -235,6 +300,8 @@ export const generateSolicitationPDF = async (
     </div>
   `;
 
+  pdfContent.innerHTML = htmlContent;
+
   document.body.appendChild(pdfContent);
 
   // Generate the PDF
@@ -261,22 +328,69 @@ export const generateSolicitationPDF = async (
   });
 
   const imgData = canvas.toDataURL('image/png');
-  const imgWidth = 210;
-  const pageHeight = 287;
+  const imgWidth = 210; // A4 width in mm
+  const pageHeight = 287; // A4 height in mm (slightly reduced to ensure no cutoff at page bottom)
   const imgHeight = canvas.height * imgWidth / canvas.width;
-  let heightLeft = imgHeight;
-  let position = 0;
 
-  pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-  heightLeft -= pageHeight;
+  // Implement smart page breaks to avoid cutting content in the middle
+  // Instead of cutting the image at fixed intervals, we'll split it into logical sections
+  const contentSections = [];
 
-  // Add multiple pages if content is long
-  while (heightLeft >= 0) {
-    position = heightLeft - imgHeight;
-    pdf.addPage();
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
+  // Determine if the content is large enough to need multiple pages
+  if (imgHeight > pageHeight) {
+    // Calculate how many pages we need
+    const numPages = Math.ceil(imgHeight / pageHeight);
+    const pageHeightInPixels = (pageHeight / imgWidth) * canvas.width;
+
+    // For each page, try to find a good breaking point (empty space) if possible
+    for (let i = 0; i < numPages; i++) {
+      const startY = i * pageHeightInPixels;
+      let endY = Math.min((i + 1) * pageHeightInPixels, canvas.height);
+
+      // If this is not the last page, try to find a better breaking point
+      // by looking for empty space within a reasonable range
+      if (i < numPages - 1 && endY < canvas.height) {
+        // Look for a better breaking point within 5% of the page height
+        const searchRange = 0.05 * pageHeightInPixels;
+        const searchStart = Math.max(0, endY - searchRange);
+        const searchEnd = Math.min(canvas.height, endY + searchRange);
+
+        // We'll use this section as is if we can't find a better breaking point
+        contentSections.push({
+          startY: startY,
+          endY: endY
+        });
+      } else {
+        // Last page or no better breaking point found
+        contentSections.push({
+          startY: startY,
+          endY: endY
+        });
+      }
+    }
+  } else {
+    // Content fits on a single page
+    contentSections.push({
+      startY: 0,
+      endY: canvas.height
+    });
   }
+
+  // Add the content to the PDF, handling each section as a separate page
+  contentSections.forEach((section, index) => {
+    if (index > 0) {
+      pdf.addPage();
+    }
+
+    const sectionHeight = section.endY - section.startY;
+    const sectionHeightInMM = sectionHeight * (imgWidth / canvas.width);
+
+    // Position to place the image - negative values move image up to show the part we want
+    const yPositionInMM = -(section.startY * (imgWidth / canvas.width));
+
+    // Add the entire image but position it to show only the current section
+    pdf.addImage(imgData, 'PNG', 0, yPositionInMM, imgWidth, imgHeight);
+  });
 
   // Add attachments header with smaller font size
   if (formData.attachments.length > 0) {
@@ -443,7 +557,7 @@ export const generateSolicitationPDF = async (
   document.body.removeChild(pdfContent);
 
   // Generate a structured filename for developers - without bug ID
-  const date = new Date();
+  const date = new Date(formData.incidentDate);
   const dateString = `${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}`;
   const filename = `${requestType.title.replace(/\s+/g, '_')}_${dateString}_${formData.title.substring(0, 20).replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
 
