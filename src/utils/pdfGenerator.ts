@@ -345,15 +345,12 @@ export const generateSolicitationPDF = async (
     // For each page, try to find a good breaking point (empty space) if possible
     for (let i = 0; i < numPages; i++) {
       const startY = i * pageHeightInPixels;
-      let endY = Math.min((i + 1) * pageHeightInPixels, canvas.height);
+      const endY = Math.min((i + 1) * pageHeightInPixels, canvas.height);
 
       // If this is not the last page, try to find a better breaking point
       // by looking for empty space within a reasonable range
       if (i < numPages - 1 && endY < canvas.height) {
-        // Look for a better breaking point within 5% of the page height
-        const searchRange = 0.05 * pageHeightInPixels;
-        const searchStart = Math.max(0, endY - searchRange);
-        const searchEnd = Math.min(canvas.height, endY + searchRange);
+        // We could analyze pixel data here to find better breaking points
 
         // We'll use this section as is if we can't find a better breaking point
         contentSections.push({
@@ -381,9 +378,6 @@ export const generateSolicitationPDF = async (
     if (index > 0) {
       pdf.addPage();
     }
-
-    const sectionHeight = section.endY - section.startY;
-    const sectionHeightInMM = sectionHeight * (imgWidth / canvas.width);
 
     // Position to place the image - negative values move image up to show the part we want
     const yPositionInMM = -(section.startY * (imgWidth / canvas.width));
