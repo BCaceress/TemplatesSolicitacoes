@@ -121,7 +121,7 @@ export const generateSolicitationPDF = async (
   const currentDate = new Date().toLocaleDateString('pt-BR');
 
   // Formatar a data do incidente utilizando a hora definida pelo usuário
-  let formattedIncidentDate = formatBrazilianDate(formData.incidentDate);
+  const formattedIncidentDate = formatBrazilianDate(formData.incidentDate);
 
   // Calculate criticality score
   const criticalityScore = calculateCriticalityScore(formData.impact, formData.criticality, formData.frequency);
