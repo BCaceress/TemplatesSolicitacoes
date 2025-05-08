@@ -149,8 +149,15 @@ export default function SolicitationFormPage() {
     // Modified input handler that preserves focus and updates available databases
     const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        const activeElement = document.activeElement as HTMLElement;
-        const activeElementName = activeElement.getAttribute('name');
+        const element = e.target;
+
+        // Store cursor position only for input and textarea elements
+        const selectionStart = (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement)
+            ? element.selectionStart
+            : null;
+        const selectionEnd = (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement)
+            ? element.selectionEnd
+            : null;
 
         setFormData(prevData => ({
             ...prevData,
@@ -177,12 +184,15 @@ export default function SolicitationFormPage() {
             }
         }
 
-        // Restore focus after state update
-        setTimeout(() => {
-            if (activeElementName && inputRefs.current[activeElementName]) {
-                inputRefs.current[activeElementName]?.focus();
+        // Restore cursor position after state update for input fields
+        requestAnimationFrame(() => {
+            if (inputRefs.current[name] && selectionStart !== null && selectionEnd !== null &&
+                (element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement)) {
+                const inputElement = inputRefs.current[name] as HTMLInputElement | HTMLTextAreaElement;
+                inputElement.focus();
+                inputElement.setSelectionRange(selectionStart, selectionEnd);
             }
-        }, 0);
+        });
     }, []);
 
     // Add a specific handler for textarea to avoid the reverse typing issue
@@ -799,6 +809,7 @@ export default function SolicitationFormPage() {
                                             <option value="Módulo Estoque">Módulo Estoque</option>
                                             <option value="Módulo Financeiro">Módulo Financeiro</option>
                                             <option value="Módulo Fiscal">Módulo Fiscal</option>
+                                            <option value="Módulo Manutenção Industrial">Módulo Manutenção Industrial</option>
                                             <option value="Módulo Nota Fiscal de Saída">Módulo Nota Fiscal de Saída</option>
                                             <option value="Módulo Produção">Módulo Produção</option>
                                             <option value="Módulo Programas Exclusivos">Módulo Programas Exclusivos</option>

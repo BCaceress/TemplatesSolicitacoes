@@ -44,6 +44,7 @@ export const clientDatabases = {
     ],
     "Imex (156)": ["10.0.0.252:/dados/BDClientes/BDimex.fdb"],
     "Indutherm (150)": ["10.0.0.252:/dados/BDClientes/BDindutherm.fdb"],
+    "Interpint (178)": ["10.0.0.252:/dados/BDClientes/BDinterpint.fdb"],
     "JA Industrial (174)": ["10.0.0.252:/dados/BDClientes/BDinterpint.fdb", "10.0.0.252:/dados/BDClientes/BDinter-revest.fdb"],
     "Jet Sola (186)": ["10.0.0.252:/dados/BDClientes/BDjetsola.fdb"],
     "LLV (34)": ["10.0.0.252:/dados/BDClientes/BDllv.fdb"],
