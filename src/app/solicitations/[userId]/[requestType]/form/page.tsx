@@ -801,6 +801,7 @@ export default function SolicitationFormPage() {
                                             <option value="">Selecione o módulo</option>
                                             <option value="Módulo Alertas">Módulo Alertas</option>
                                             <option value="Módulo Cadastro de usuários e permissões">Módulo Cadastro de usuários e permissões</option>
+                                            <option value="Módulo Caixa e Bancos">Módulo Caixa e Bancos</option>
                                             <option value="Módulo Comercial">Módulo Comercial</option>
                                             <option value="Módulo Compras">Módulo Compras</option>
                                             <option value="Módulo Contábil">Módulo Contábil</option>
