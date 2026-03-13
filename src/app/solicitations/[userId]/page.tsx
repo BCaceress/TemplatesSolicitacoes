@@ -32,11 +32,10 @@ export default function SolicitationTypePage() {
                     { name: "Diego Cordeiro", id: "diegoC", role: "Suporte" },
                     { name: "Diego Felipe", id: "diegoF", role: "Suporte" },
                     { name: "Marcel Jaques", id: "marcel", role: "Suporte" },
-                    { name: "Thiago Simon", id: "thiago", role: "Suporte" },
+                    { name: "Rafael Pinheiro", id: "rafael", role: "Suporte" },
                 ];
 
                 const analystTeam = [
-                    { name: "Cristiano Huhnfleisch", id: "cristiano", role: "Implantação" },
                     { name: "Matheus Pochmann", id: "matheus", role: "Implantação" },
                 ];
 
