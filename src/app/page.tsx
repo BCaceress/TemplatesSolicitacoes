@@ -114,7 +114,7 @@ export default function Home() {
                     <div key={user.id}>
                       <button
                         onClick={() => handleUserSelect(user)}
-                        className="w-full flex items-center p-4 bg-white dark:bg-[#343434] rounded-lg hover:bg-[#09A08D]/5 dark:hover:bg-[#09A08D]/10 transition-all duration-300 border border-gray-200 dark:border-gray-700 group hover:shadow-md relative"
+                        className="w-full flex items-center p-4 bg-white dark:bg-[#343434] rounded-lg hover:bg-[#09A08D]/5 dark:hover:bg-[#09A08D]/10 transition-all duration-300 border border-gray-200 dark:border-gray-700 group hover:shadow-md relative cursor-pointer"
                       >
                         <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#09A08D] to-[#0B8A7B] flex items-center justify-center text-white font-bold mr-4 shadow-md group-hover:shadow-lg transition-all duration-300">
                           {user.name.charAt(0)}
@@ -144,7 +144,7 @@ export default function Home() {
                     <div key={user.id}>
                       <button
                         onClick={() => handleUserSelect(user)}
-                        className="w-full flex items-center p-4 bg-white dark:bg-[#343434] rounded-lg hover:bg-[#3C787A]/5 dark:hover:bg-[#3C787A]/10 transition-all duration-300 border border-gray-200 dark:border-gray-700 group hover:shadow-md relative"
+                        className="w-full flex items-center p-4 bg-white dark:bg-[#343434] rounded-lg hover:bg-[#3C787A]/5 dark:hover:bg-[#3C787A]/10 transition-all duration-300 border border-gray-200 dark:border-gray-700 group hover:shadow-md relative cursor-pointer"
                       >
                         <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#3C787A] to-[#346B6D] flex items-center justify-center text-white font-bold mr-4 shadow-md group-hover:shadow-lg transition-all duration-300">
                           {user.name.charAt(0)}
