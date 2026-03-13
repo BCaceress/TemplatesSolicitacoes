@@ -425,7 +425,7 @@ export default function SolicitationFormPage() {
             )}
 
             <AppNavbar
-                title={currentRequestType?.title || "Solicitacao"}
+                title={currentRequestType?.title || "Solicitação"}
                 subtitle={`${userName}${userRole ? ` (${userRole})` : ""}`}
                 backHref={`/solicitations/${userId}`}
             />

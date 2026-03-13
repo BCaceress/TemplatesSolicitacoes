@@ -30,15 +30,15 @@ export default function SolicitationTypePage() {
       { name: "Rafael Pinheiro", id: "rafael", role: "Suporte" },
     ];
 
-    const deploymentTeam = [{ name: "Matheus Pochmann", id: "matheus", role: "Implantacao" }];
+    const deploymentTeam = [{ name: "Matheus Pochmann", id: "matheus", role: "Implantação" }];
     const user = [...supportTeam, ...deploymentTeam].find((entry) => entry.id === userId);
 
     if (user) {
       setUserName(user.name);
       setUserRole(user.role);
     } else {
-      setUserName("Usuario Desconhecido");
-      setUserRole("Perfil nao identificado");
+      setUserName("Usuário Desconhecido");
+      setUserRole("Perfil não identificado");
     }
   }, [userId, selectedUser]);
 
@@ -46,14 +46,14 @@ export default function SolicitationTypePage() {
     {
       id: "bugs",
       title: "Reportar Bugs",
-      description: "Comunique falhas tecnicas com impacto, urgencia e evidencias.",
+      description: "Comunique falhas técnicas com impacto, urgência e evidências.",
       color: "#0d9b88",
       icon: <BugReportOutlinedIcon style={{ color: "white", fontSize: 24 }} />,
     },
     {
       id: "improvements",
       title: "Sugerir Melhorias",
-      description: "Registre oportunidades de evolucao com contexto e beneficio esperado.",
+      description: "Registre oportunidades de evolução com contexto e benefício esperado.",
       color: "#2f6f71",
       icon: <LightbulbOutlinedIcon style={{ color: "white", fontSize: 24 }} />,
     },
@@ -61,14 +61,14 @@ export default function SolicitationTypePage() {
 
   return (
     <div className="app-shell">
-      <AppNavbar title="Nova Solicitacao" subtitle={`${userName}${userRole ? ` (${userRole})` : ""}`} backHref="/" />
+      <AppNavbar title="Nova Solicitação" subtitle={`${userName}${userRole ? ` (${userRole})` : ""}`} backHref="/" />
 
       <main className="container mx-auto px-4 py-8 md:py-10">
         <div className="max-w-5xl mx-auto">
           <section className="app-card mt-2 p-6 md:p-8">
-            <h2 className="text-2xl font-bold text-[#13211f] dark:text-white">Escolha o tipo de solicitacao</h2>
+            <h2 className="text-2xl font-bold text-[#13211f] dark:text-white">Escolha o tipo de solicitação</h2>
             <p className="mt-2 text-sm md:text-base text-gray-600 dark:text-gray-300">
-              Selecione uma categoria para abrir o formulario correspondente.
+              Selecione uma categoria para abrir o formulário correspondente.
             </p>
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">

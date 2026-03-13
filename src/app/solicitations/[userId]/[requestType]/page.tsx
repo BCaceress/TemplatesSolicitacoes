@@ -27,11 +27,11 @@ export default function SolicitationTypeBridgePage() {
 
   return (
     <div className="app-shell">
-      <AppNavbar title="Nova Solicitacao" subtitle="Preparando formulario..." backHref={`/solicitations/${userId}`} />
+      <AppNavbar title="Nova Solicitação" subtitle="Preparando formulário..." backHref={`/solicitations/${userId}`} />
       <div className="flex items-center justify-center p-4 min-h-[calc(100vh-88px)] md:min-h-[calc(100vh-104px)]">
         <div className="app-card p-8 text-center max-w-sm w-full">
           <div className="inline-block animate-spin h-9 w-9 border-4 border-t-[#0d9b88] border-r-[#0d9b88] border-b-transparent border-l-transparent rounded-full" />
-          <p className="mt-4 text-gray-700 dark:text-gray-200">Redirecionando para o formulario...</p>
+          <p className="mt-4 text-gray-700 dark:text-gray-200">Redirecionando para o formulário...</p>
         </div>
       </div>
     </div>

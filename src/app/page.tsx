@@ -19,7 +19,7 @@ const supportTeam: User[] = [
   { name: "Rafael Pinheiro", id: "rafael", role: "Suporte" },
 ];
 
-const deploymentTeam: User[] = [{ name: "Matheus Pochmann", id: "matheus", role: "Implantacao" }];
+const deploymentTeam: User[] = [{ name: "Matheus Pochmann", id: "matheus", role: "Implantação" }];
 
 export default function Home() {
   const router = useRouter();
@@ -37,7 +37,7 @@ export default function Home() {
   return (
     <div className="app-shell">
       <AppNavbar
-        title="Central de Solicitacoes"
+        title="Central de Solicitações"
         subtitle="Escolha seu perfil para abrir chamados de bug ou melhorias."
       />
 
@@ -46,21 +46,21 @@ export default function Home() {
           <aside className="app-card p-6 md:p-7 xl:sticky xl:top-8 xl:h-fit">
             <h2 className="text-xl font-bold text-[#13211f] dark:text-white">Como funciona</h2>
             <p className="mt-3 text-sm md:text-base text-gray-700 dark:text-gray-300 leading-relaxed">
-              O fluxo foi pensado para reduzir retrabalho: voce seleciona seu perfil, define o tipo de solicitacao e
-              preenche um formulario padronizado para facilitar a analise do time tecnico.
+              O fluxo foi pensado para reduzir retrabalho: você seleciona seu perfil, define o tipo de solicitação e
+              preenche um formulário padronizado para facilitar a análise do time técnico.
             </p>
 
             <div className="mt-6 space-y-4">
               <div className="section-card p-4 border-l-4 border-[#0d9b88]">
                 <p className="font-semibold text-[#0d9b88]">1. Reportar bugs</p>
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-                  Informe impacto, urgencia e evidencias para agilizar o diagnostico.
+                  Informe impacto, urgência e evidências para agilizar o diagnóstico.
                 </p>
               </div>
               <div className="section-card p-4 border-l-4 border-[#2f6f71]">
                 <p className="font-semibold text-[#2f6f71]">2. Sugerir melhorias</p>
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-                  Descreva o processo atual e o beneficio esperado da mudanca.
+                  Descreva o processo atual e o benefício esperado da mudança.
                 </p>
               </div>
             </div>
@@ -86,16 +86,14 @@ export default function Home() {
                       <p className="font-semibold text-[#13211f] dark:text-white truncate">{user.name}</p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">{user.role}</p>
                     </div>
-                    <span className="text-[#0d9b88] text-xl leading-none" aria-hidden="true">
-                      ›
-                    </span>
+                    <span className="text-[#0d9b88] text-xl leading-none" aria-hidden="true">&rsaquo;</span>
                   </button>
                 ))}
               </div>
             </div>
 
             <div className="mt-8">
-              <h3 className="text-sm font-semibold uppercase tracking-wider text-[#2f6f71]">Equipe de Implantacao</h3>
+              <h3 className="text-sm font-semibold uppercase tracking-wider text-[#2f6f71]">Equipe de Implantação</h3>
               <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 {deploymentTeam.map((user) => (
                   <button
@@ -110,9 +108,7 @@ export default function Home() {
                       <p className="font-semibold text-[#13211f] dark:text-white truncate">{user.name}</p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">{user.role}</p>
                     </div>
-                    <span className="text-[#2f6f71] text-xl leading-none" aria-hidden="true">
-                      ›
-                    </span>
+                    <span className="text-[#2f6f71] text-xl leading-none" aria-hidden="true">&rsaquo;</span>
                   </button>
                 ))}
               </div>
@@ -121,9 +117,10 @@ export default function Home() {
         </div>
 
         <footer className="mt-10 md:mt-14 border-t border-[color:var(--border)] pt-6 text-sm text-gray-500 dark:text-gray-400">
-          © {new Date().getFullYear()} Colet Sistemas
+          &copy; {new Date().getFullYear()} Colet Sistemas
         </footer>
       </main>
     </div>
   );
 }
+
